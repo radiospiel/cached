@@ -1,12 +1,12 @@
 load "db.rb"
+Db.database ||= "#{ENV["HOME"]}/.cached.sql"
+
 require 'digest/sha1'
 
 class Entry
   extend Db
   
   def self.init
-    self.database = "#{ENV["HOME"]}/.cached.sql"
-    
     unless ask "SELECT name FROM sqlite_master WHERE type='table' AND name='cached'"
       ask "CREATE TABLE cached(key, value, valid_until)"
     end

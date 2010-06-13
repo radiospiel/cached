@@ -3,16 +3,16 @@ load "fast_gem.rb"
 FastGem.load "sqlite3"
 
 module Db
-  def database=(database)
+  def self.database=(database)
     @database = database
   end
   
-  def database
+  def self.database
     @database
   end
   
   def db
-    @db ||= SQLite3::Database.new(database)
+    @db ||= SQLite3::Database.new(Db.database)
   end
 
   def log(query, *args)

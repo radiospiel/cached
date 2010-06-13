@@ -1,15 +1,27 @@
 #!/usr/bin/env ruby
 
-if defined?(Gem)
-  STDERR.puts "Note: please run improved installation via\n\n\tsudo #{$0} install"
+if ARGV == %w(--install)
+  require "fileutils"
+  
+  FileUtils.rm($0)
+  FileUtils.symlink(__FILE__, $0)
+  exit
+elsif defined?(Gem)
+  STDERR.puts "Note: please run improved installation via\n\n\tsudo #{$0} --install"
 end
 
-if ARGV == "install"
-  File.rm($0)
-  File.symlink(__FILE__, $0)
+begin
+  path = File.readlink(__FILE__)
+rescue Errno::EINVAL
+  path = __FILE__
 end
 
-$: << File.dirname(__FILE__) + "/../lib"
+$: << File.expand_path(File.dirname(path) + "/../lib")
+
 require "cached"
+
+load "db.rb"
+
+Db.database ||= "#{ENV["HOME"]}/.cached.sql"
 
 puts Cached.exec *ARGV
