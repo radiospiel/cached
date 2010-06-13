@@ -1,4 +1,9 @@
 #!/usr/bin/env ruby
+
+if defined?(Gem)
+  STDERR.puts "Note: please run improved installation via sudo #{$0} install"
+end
+
 $: << File.dirname(__FILE__) + "/../lib"
 require "cached"
 

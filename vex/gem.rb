@@ -32,10 +32,28 @@ module Gem
           v = attribute(attr)
           next if v.nil?
           
-          STDERR.puts "#{"%20s" % attr}:\t#{v.inspect}"
+          log attr, v
+          
           s.send attr + "=", v
         end
+        
+        %w(pre_uninstall post_install).each do |hook|
+          next unless File.exists?("#{root}/hooks/#{hook}.rb")
+          log hook, "yes"
+          Gem.send(hook) {
+            load "hooks/#{hook}.rb"
+          }
+        end
       end
+    end
+    
+    def log(attr, v)
+      v = case attr
+      when "files" then "#{v.length} files"
+      else              v.inspect
+      end
+      
+      STDERR.puts "#{"%20s" % attr}:\t#{v}"
     end
     
     def dependencies
