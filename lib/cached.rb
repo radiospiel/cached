@@ -1,13 +1,18 @@
 load "db.rb"
 
-class Entry < Db
+class Entry
+  extend Db
+  
   def self.init
-    unless ask "SELECT name FROM sqlite_master WHERE type='table' AND name='cached'"
-      ask "CREATE TABLE cached(key, value, valid_until)"
-    end
+    @init ||= begin
+      unless ask "SELECT name FROM sqlite_master WHERE type='table' AND name='cached'"
+        ask "CREATE TABLE cached(key, value, valid_until)"
+      end
 
-    ask "CREATE UNIQUE INDEX IF NOT EXISTS cached_key ON cached(key)"
-    ask "CREATE INDEX IF NOT EXISTS cached_valid_until ON cached(valid_until)"
+      ask "CREATE UNIQUE INDEX IF NOT EXISTS cached_key ON cached(key)"
+      ask "CREATE INDEX IF NOT EXISTS cached_valid_until ON cached(valid_until)"
+      1
+    end
   end
 
   def self.cleanup
@@ -28,9 +33,6 @@ class Entry < Db
   end
 end
 
-Entry.init
-
-
 module Cached
   def self.exec(*args)
     ttl = 3600
@@ -49,51 +51,32 @@ module Cached
     end
   end
 
-  def self.shell_single_word(str)
-    if str.empty?
-      "''"
-    elsif %r{\A[0-9A-Za-z+,./:=@_-]+\z} =~ str
-      str
-    else
-      result = ''
-      str.scan(/('+)|[^']+/) {
-        if $1
-          result << %q{\'} * $1.length
-        else
-          result << "'#{$&}'"
-        end
-      }
-      result
-    end
+  def self.shell_escape(*args)
+    args.map do |str|
+      if str.empty?
+        "''"
+      elsif %r{\A[0-9A-Za-z+,./:=@_-]+\z} =~ str
+        str
+      else
+        result = ''
+        str.scan(/('+)|[^']+/) {
+          if $1
+            result << %q{\'} * $1.length
+          else
+            result << "'#{$&}'"
+          end
+        }
+        result
+      end
+    end.join(" ")
   end
 
   def self.run(*args)
-    command = args.join(" ") #map {|word| shell_single_word(word) }.join(' ')
-    STDERR.puts "Executing: #{command}"
+    command = args.join(" ")
+    # command = shell_escape args
     `#{command}`
   end
 end
 
-
-__END__
-
-Entry.init
-
-exit
-
-__END__
-
-db = SQLite3::Database.new( "data.db" ) do |db|
-  db.execute( "select * from table" ) do |row|
-    p row
-  end
-end
-
-def sql(query)
-  
-end
-exit
-
-
-require "vex"
-
+#
+# TODO: start cleanup in background... Entry.cleanup
