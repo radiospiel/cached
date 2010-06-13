@@ -8,11 +8,11 @@ module Db
   end
   
   def database
-    @database || "test.db"
+    @database
   end
   
   def db
-    @db ||= SQLite3::Database.new("test.db") 
+    @db ||= SQLite3::Database.new(database)
   end
 
   def log(query, *args)

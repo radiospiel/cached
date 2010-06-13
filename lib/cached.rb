@@ -1,19 +1,23 @@
 load "db.rb"
+require 'digest/sha1'
 
 class Entry
   extend Db
   
   def self.init
-    @init ||= begin
-      unless ask "SELECT name FROM sqlite_master WHERE type='table' AND name='cached'"
-        ask "CREATE TABLE cached(key, value, valid_until)"
-      end
-
-      ask "CREATE UNIQUE INDEX IF NOT EXISTS cached_key ON cached(key)"
-      ask "CREATE INDEX IF NOT EXISTS cached_valid_until ON cached(valid_until)"
-      1
+    self.database = "#{ENV["HOME"]}/.cached.sql"
+    
+    STDERR.puts "database: #{database}"
+    # exit
+    unless ask "SELECT name FROM sqlite_master WHERE type='table' AND name='cached'"
+      ask "CREATE TABLE cached(key, value, valid_until)"
     end
+
+    ask "CREATE UNIQUE INDEX IF NOT EXISTS cached_key ON cached(key)"
+    ask "CREATE INDEX IF NOT EXISTS cached_valid_until ON cached(valid_until)"
   end
+
+  init
 
   def self.cleanup
     ask "DELETE FROM cached WHERE valid_until < ?", now
@@ -43,7 +47,7 @@ module Cached
       ttl = $1.to_i
     end
     
-    key = args.inspect
+    key = Digest::SHA1.hexdigest(Dir.getwd + ":" + args.inspect)
     Entry.get(key) || begin
       value = run(*args)
       Entry.set(key, value, :ttl => ttl)

@@ -34,6 +34,3 @@ end
 desc "Build gem"
 # task :gem => %w(test gem:install)
 task :gem => %w(gem:install gem:push)
-
-
-
