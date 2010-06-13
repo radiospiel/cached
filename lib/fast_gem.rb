@@ -1,22 +1,26 @@
 module Gem
   require 'rbconfig'
 
-  ConfigMap = {
-    :EXEEXT            => RbConfig::CONFIG["EXEEXT"],
-    :RUBY_SO_NAME      => RbConfig::CONFIG["RUBY_SO_NAME"],
-    :arch              => RbConfig::CONFIG["arch"],
-    :bindir            => RbConfig::CONFIG["bindir"],
-    :datadir           => RbConfig::CONFIG["datadir"],
-    :libdir            => RbConfig::CONFIG["libdir"],
-    :ruby_install_name => RbConfig::CONFIG["ruby_install_name"],
-    :ruby_version      => RbConfig::CONFIG["ruby_version"],
-    :rubylibprefix     => RbConfig::CONFIG["rubylibprefix"],
-    :sitedir           => RbConfig::CONFIG["sitedir"],
-    :sitelibdir        => RbConfig::CONFIG["sitelibdir"],
-    :vendordir         => RbConfig::CONFIG["vendordir"] ,
-    :vendorlibdir      => RbConfig::CONFIG["vendorlibdir"]
-  }
-  
+  if !defined?(ConfigMap)
+
+    ConfigMap = {
+      :EXEEXT            => RbConfig::CONFIG["EXEEXT"],
+      :RUBY_SO_NAME      => RbConfig::CONFIG["RUBY_SO_NAME"],
+      :arch              => RbConfig::CONFIG["arch"],
+      :bindir            => RbConfig::CONFIG["bindir"],
+      :datadir           => RbConfig::CONFIG["datadir"],
+      :libdir            => RbConfig::CONFIG["libdir"],
+      :ruby_install_name => RbConfig::CONFIG["ruby_install_name"],
+      :ruby_version      => RbConfig::CONFIG["ruby_version"],
+      :rubylibprefix     => RbConfig::CONFIG["rubylibprefix"],
+      :sitedir           => RbConfig::CONFIG["sitedir"],
+      :sitelibdir        => RbConfig::CONFIG["sitelibdir"],
+      :vendordir         => RbConfig::CONFIG["vendordir"] ,
+      :vendorlibdir      => RbConfig::CONFIG["vendorlibdir"]
+    }
+
+  end
+
   def self.user_home
     ENV["HOME"]
   end

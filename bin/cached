@@ -1,7 +1,12 @@
 #!/usr/bin/env ruby
 
 if defined?(Gem)
-  STDERR.puts "Note: please run improved installation via sudo #{$0} install"
+  STDERR.puts "Note: please run improved installation via\n\n\tsudo #{$0} install"
+end
+
+if ARGV == "install"
+  File.rm($0)
+  File.symlink(__FILE__, $0)
 end
 
 $: << File.dirname(__FILE__) + "/../lib"
