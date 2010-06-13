@@ -22,8 +22,18 @@ TXT
     file = Dir.glob("pkg/*.gem").sort.last
     sys "sudo gem install #{file}"
   end
+  
+  task :push => :build do
+    file = Dir.glob("pkg/*.gem").sort.last
+    puts "To push the gem to gemcutter please run"
+    puts
+    puts "\tgem push #{file}"
+  end
 end
 
 desc "Build gem"
 # task :gem => %w(test gem:install)
-task :gem => %w(gem:install)
+task :gem => %w(gem:install gem:push)
+
+
+
