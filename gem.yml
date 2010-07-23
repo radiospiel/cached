@@ -8,4 +8,4 @@ summary:      cached command line tool
 description:  |
   The 'cached' command line tool provides an easy to use *nix caching tool. 
 
-dependencies: vex
+dependencies: sqlite3-ruby
