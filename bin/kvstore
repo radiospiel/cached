@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+if ARGV == %w(--install)
+  require "fileutils"
+  
+  FileUtils.rm($0)
+  FileUtils.symlink(__FILE__, $0)
+  exit
+elsif defined?(Gem)
+  STDERR.puts "Note: please run improved installation via\n\n\tsudo #{$0} --install"
+end
+
+begin
+  path = File.readlink(__FILE__)
+rescue Errno::EINVAL
+  path = __FILE__
+end
+
+$: << File.expand_path(File.dirname(path) + "/../lib")
+
+require "db"
+
+Db.database = "#{ENV["HOME"]}/.kvstore.sql"
+
+class App 
+  include Db
+  
+  def initialize
+    unless ask "SELECT name FROM sqlite_master WHERE type='table' AND name='kvstore'"
+      ask "CREATE TABLE kvstore(key, value)"
+      ask "CREATE UNIQUE INDEX IF NOT EXISTS kvstore_key ON kvstore(key)"
+    end
+  end
+
+  def set(key, value)
+    ask("INSERT OR REPLACE INTO kvstore VALUES(?, ?)", key, value)
+  end
+
+  def get(key)
+    puts ask("SELECT value FROM kvstore WHERE key=?", key)
+  end
+
+  def delete(key)
+    ask("DELETE FROM kvstore WHERE key=?", key)
+  end
+
+  def list
+    sql("SELECT key, value FROM kvstore") do |row|
+      puts row.first
+    end
+  end
+  
+  def help(*args)
+    STDERR.puts <<-MSG
+
+Usage: 
+
+  #{$0} set key value
+  #{$0} get key
+  #{$0} delete key
+  #{$0} list
+MSG
+  end
+end  
+
+app = App.new
+
+cmd = ARGV.shift || "help"
+begin
+  app.send cmd, *ARGV
+rescue NoMethodError, ArgumentError
+  puts $!
+  app.help
+end
