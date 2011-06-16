@@ -29,29 +29,28 @@ end
 require 'rubygems/defaults'
 
 module FastGem
-  (class << self; self; end).class_eval do
-    def paths
-      [ "#{Gem.default_dir}/gems", "#{Gem.user_dir}/gems" ]
-    end
+  extend self
 
-    def best(files, offset = 0)
-      files.
-        compact.
-        sort_by { |file| file[offset..-1] }.
-        last
-    end
-    
-    def find(name)
-      best paths.map { |path|
-        ofs = "#{path}/#{name}-*"
-        best Dir.glob("#{ofs}*"), ofs.length }
-    end
-    
-    def load(name)
-      path = find(name)
-      # STDERR.puts "Load #{name} from #{path}"
-      $: << "#{path}/lib"
-      require name
-    end
+  def gem_paths
+    [ Gem.default_dir, Gem.user_dir ]
+  end
+
+  #
+  # Try ro find the file "name" in any of the available paths, and return the path
+  def find(name)
+    # look into each gempath for a matching file, sort by version (roughly), 
+    # and return the last hit
+    gem_paths.
+      map { |gem_path| Dir.glob("#{gem_path}/gems/#{name}-[0-9]*") }.
+      flatten.
+      sort_by { |gem_path| gem_path.gsub(/.*\/gems\/[^-]+-/, "") }.
+      last
+  end
+  
+  def load(name)
+    path = find(name)
+    # STDERR.puts "Load #{name} from #{path}"
+    $: << "#{path}/lib"
+    require name
   end
 end
