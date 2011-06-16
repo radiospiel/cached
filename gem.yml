@@ -1,11 +1,11 @@
 #
 # A vex/gem config file.
-version:      0.1
-authors:      ["parkaboy"]
+version:      0.2
+authors:      ["radiospiel"]
 email:        eno@open-lab.org
 homepage:     http://radiospiel.org
 summary:      cached command line tool
 description:  |
   The 'cached' command line tool provides an easy to use *nix caching tool. 
 
-dependencies: sqlite3-ruby
+dependencies: sqlite3
