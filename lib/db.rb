@@ -19,9 +19,9 @@ module Db
     # STDERR.puts "[sqlite] #{query}"
   end
   
-  def sql(query, *args)
+  def sql(query, *args, &block)
     log query, *args
-    r = db.execute query, *args
+    r = db.execute query, *args, &block
     return r if r
     return [ db.changes ] if query =~ /^\s*(DELETE|INSERT)\b/i
   end
